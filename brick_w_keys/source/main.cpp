@@ -10,7 +10,8 @@
 #include <conio.h>
 using namespace std;
 
-//This is a test of GitHub
+//This is a test of Github
+// My name is mason Caird, and I hate github!!
 
 // Stuff for output to console screen
 HANDLE hStdout, hStdin; 
