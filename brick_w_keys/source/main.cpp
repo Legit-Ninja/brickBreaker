@@ -10,9 +10,6 @@
 #include <conio.h>
 using namespace std;
 
-//This is a test of Github
-// My name is mason Caird, and I hate github!!
-
 // Stuff for output to console screen
 HANDLE hStdout, hStdin; 
 CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
@@ -32,15 +29,15 @@ const int MAX_Y = 20;
 class GameObject {
     protected:
         COORD pos;
-        int vy,vx;
+        double vy,vx;
     public:
         GameObject() { // Makes gameobject for the ball and still box.
 
             //  defualt values
             pos.X = 0;
             pos.Y = 0;
-            vx = 0;
-            vy = 0;
+            vx = 0.0;
+            vy = 0.0;
         }
          virtual void draw() {	SetConsoleCursorPosition(hStdout,pos);}
 
@@ -57,14 +54,16 @@ class stillBox : public GameObject {
     public:
         stillBox() {
         
-           // randomly generates stillBox in window's upper half
+        // randomly generates stillBox in window's upper half
+            pos.X = rand() % MAX_X;
+            pos.Y = (rand() %  10);   
+            while (this->pos.X+7 > 40) { // If the still box prints half way through window, randomize it again.
                 pos.X = rand() % MAX_X;
-                pos.Y = (rand() %  10 ) + 10;   //DOES THE COMPUTER START AT TOP LEFT??
-                while (this->pos.X+7 > 40) { // If the still box prints half way through window, randomize it again.
-                pos.X = rand() % MAX_X;
-                stillBoxShape = "[/////]";
-                // look at this (get it?? hehe)
             }
+            stillBoxShape = "[/////]";
+         // look at this (get it?? hehe)
+        
+
             
         }
         short getX() { return pos.X; }
@@ -90,7 +89,7 @@ class userBox : public GameObject {
         userBox() {
             pos.X = 17; // Place box in center of screen on bottom
             pos.Y = 18;
-            vx = 2;
+            vx = 0.1;
             userBoxShape = "[IIIII]";
         }
         void draw() {
@@ -100,14 +99,18 @@ class userBox : public GameObject {
         void move(int key) {
             if ( key != -2 ) {
                 cout << "You entered: " << key << endl;
-                exit(0);
-            }
+               // exit(0);
+            } 
             if (key == 75) // left arrow key
             {
-                this-> pos.X = pos.X-=vx; //moves userbox left
+                if (pos.X >= MAX_X) { this-> pos.X = MAX_X;  }
+                if ( pos.X <= 0 )   { this-> pos.X = 0;   }
+                this-> pos.X = pos.X-=vx; // moves userbox left
             }
-            else if( key == 77)     //right arrow key
+            else if(key == 77)     //right arrow key
             {
+                if (pos.X >= MAX_X) { this-> pos.X = MAX_X;  }
+                if ( pos.X <= 0 )   { this-> pos.X = 0;   }
                 this-> pos.X = pos.X+=vx; // moves userbox right
             }
             
@@ -141,7 +144,7 @@ class Ball : public GameObject {
             if (pos.X >= MAX_X) { vx *= -1; pos.X = MAX_X - 1; }
             if ( pos.X <= 0 )   { vx *= -1;	pos.X = 1; 		   }
             if ( pos.Y <= 0 )    { vy *= -1;	pos.Y = 1; 		   }
-            if (pos.Y >= 18) { 
+            if (pos.Y >= 19) { 
                 cout << "game over" << endl;
                 exit(0); 
                 }
@@ -203,18 +206,14 @@ int main()
     for (int i = 0; i < 10; i++)
     {
         gObjects.push_back(new stillBox());
-       /* for (j =0; j < gObjects.size(); j++)
-        {
-            if ()
-        } */
     }
-    int key;
+    int key = 0;
     int blocksHit = 0;
-    while (gameOver(gObjects, blocksHit) != true) //makes sure the game isn't over MAIN GAME LOOP
+    while (gameOver(gObjects, blocksHit) != true) //makes sure the game isn't over 
     {  
         for (int i = 0; i < gObjects.size(); i++)       // updates game objects
         {   
-            //cout << i << endl;
+        //cout << i << endl;
         //cin >> key;
             for (int j = i+1; j < gObjects.size(); j++ )    // checks for collisons
             {
@@ -248,9 +247,7 @@ int main()
                 }
             }
         dynamic_cast<userBox *>(gObjects[0])->move(key);    // i know the first game object is the userbox, so call the special move function
-        //cout << "did i make it here?" << endl; //very confused by the outputs to terminal
         gObjects[i]->draw();
-        //cout << dynamic_cast<Ball *>(gObjects[1])->getY() << endl;  //says my balls's y position is 27 yet exits as if it's 28?
         gObjects[i]->move();
         }
 
@@ -259,9 +256,8 @@ int main()
 			if ( _kbhit() ) {
 				key =  _getch();
 			}
-			Sleep(10);
+			Sleep(1);
 		}
-
     system("cls");
     ShowConsoleCursor(false);
     }
