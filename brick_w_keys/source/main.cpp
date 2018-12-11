@@ -10,6 +10,8 @@
 #include <conio.h>
 using namespace std;
 
+//This is a test of GitHub
+
 // Stuff for output to console screen
 HANDLE hStdout, hStdin; 
 CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
