@@ -3,7 +3,7 @@
 // Add a time for input and output
 // Add bounces from still boxes
 
-bool collide(COORD ballPos, COORD blockPos)   //compares a block's position with the ball's
+bool collide(COORD ballPos, COORD blockPos)   //compares two objects
 {
     for (int i = 0; i < 7; i++)   //checks to see if ball collides with any of the block's positions
     {
@@ -22,7 +22,7 @@ bool gameOver(vector<GameObject*> go, int& blocksHit)     // returns true if all
         if (typeid(go[i]) == typeid(stillBox))  //checks to see if the gameobject is a still box
         {
             dynamic_cast<stillBox *>(go[i]);
-            if ( dynamic_cast<stillBox *>(go[i])->getShape() == "       ")
+            if ( dynamic_cast<stillBox *>(go[i])->getShape() == "       ")  // counts up bocksHit if still box has been hit
             {
                 blocksHit++;
             }
@@ -35,16 +35,15 @@ bool gameOver(vector<GameObject*> go, int& blocksHit)     // returns true if all
     return false;
 }
 
-void overlap(vector<GameObject*> go ) { //Reassures all stillboxes are not overlapping
+void overlap(vector<GameObject*> &go ) { //Reassures all stillboxes are not overlapping
     for (int i = 3; i<go.size(); i++){ 
         for (int j = 0; j < 7; j++)     //makes sure it doesn't overlap any of the positions
         {
-            while (dynamic_cast<stillBox *>(go[i-1])->getX() == // Captured the getX() from still box to compare to others
-                    dynamic_cast<stillBox *>(go[i])->getX()+j)     
+            while (dynamic_cast<stillBox *>(go[i-1])->getX()+j == dynamic_cast<stillBox *>(go[i])->getX() ||
+                dynamic_cast<stillBox *>(go[i-1])->getX() == dynamic_cast<stillBox *>(go[i])->getX()+j)     //makes sure the boxes don't ovewrlap
             {
-
-                dynamic_cast<stillBox *>(go[i])->newX(); // makes the stillbox in a new place
-                dynamic_cast<stillBox *>(go[i])->newY();
+                dynamic_cast<stillBox *>(go[i-1])->newX(); // makes the stillbox in a new place
+                dynamic_cast<stillBox *>(go[i-1])->newY();
 
             }
         }
@@ -128,6 +127,8 @@ int main()
     system("cls");
     ShowConsoleCursor(false);
     }
+    cout << blocksHit << endl;
+    cout << "You win!" << endl;
     ShowConsoleCursor(true);
     return 0;
 }

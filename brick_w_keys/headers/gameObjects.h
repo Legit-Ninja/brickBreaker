@@ -143,8 +143,8 @@ class Ball : public GameObject {
             pos.Y += vy;
             // KEEPS THE BALL INSIDE WINDOW EXCEPT THE BOTTOM
             if (pos.X >= MAX_X) { vx *= -1.0; pos.X = MAX_X - 1; }
-            if ( pos.X <= 0 )   { vx *= -1.0;	pos.X = 1; 		   }
-            if ( pos.Y <= 0 )    { vy *= -1.0;	pos.Y = 1; 		   }
+            if ( pos.X <= 0 )   { vx *= -1.0;	pos.X = 0; 		   }
+            if ( pos.Y <= 0 )    { vy *= -1.0;	pos.Y = 0; 		   }
             if (pos.Y >= 19) { 
                 cout << "game over" << endl;
                 exit(0); 
