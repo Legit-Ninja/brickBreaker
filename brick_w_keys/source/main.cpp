@@ -1,156 +1,7 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <typeinfo>
-#include <windows.h> 
-#include <Wincon.h>
-#include <stdio.h>
-#include <conio.h>
-using namespace std;
+#include"gameObjects.h"
 
-// Stuff for output to console screen
-HANDLE hStdout, hStdin; 
-CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
-
-void ShowConsoleCursor(bool showFlag)
-{
-	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO     cursorInfo;
-    GetConsoleCursorInfo(out, &cursorInfo);
-    cursorInfo.bVisible = showFlag; // set the cursor visibility  {/////}
-    SetConsoleCursorInfo(out, &cursorInfo);
-}
-
-const int MAX_X = 40;
-const int MAX_Y = 20;
-
-class GameObject {
-    protected:
-        COORD pos;
-        double vy,vx;
-    public:
-        GameObject() { // Makes gameobject for the ball and still box.
-
-            //  defualt values
-            pos.X = 0;
-            pos.Y = 0;
-            vx = 0.0;
-            vy = 0.0;
-        }
-         virtual void draw() {	SetConsoleCursorPosition(hStdout,pos);}
-
-         COORD get_pos() {
-            return pos;
-         }
-
-         virtual void move() {}
-};
-
-class stillBox : public GameObject {
-    protected:
-        string stillBoxShape;
-    public:
-        stillBox() {
-        
-        // randomly generates stillBox in window's upper half
-            pos.X = rand() % MAX_X;
-            pos.Y = (rand() %  10);   
-            while (this->pos.X+7 > 40) { // If the still box prints half way through window, randomize it again.
-                pos.X = rand() % MAX_X;
-            }
-            stillBoxShape = "[/////]";
-         // look at this (get it?? hehe)
-        
-
-            
-        }
-        short getX() { return pos.X; }
-        short getY() { return pos.X; }
-        string getShape()
-        {
-            return stillBoxShape;
-        }
-        void draw() {
-             GameObject::draw();
-             cout << stillBoxShape;
-        }
-        void hit()
-        {
-            stillBoxShape = "       ";
-        }
-};
-
-class userBox : public GameObject {
-    protected:
-        string userBoxShape;
-    public:
-        userBox() {
-            pos.X = 17; // Place box in center of screen on bottom
-            pos.Y = 18;
-            vx = 0.1;
-            userBoxShape = "[IIIII]";
-        }
-        void draw() {
-            GameObject::draw();
-            cout << userBoxShape;
-        }
-        void move(int key) {
-            if ( key != -2 ) {
-                cout << "You entered: " << key << endl;
-               // exit(0);
-            } 
-            if (key == 75) // left arrow key
-            {
-                if (pos.X >= MAX_X) { this-> pos.X = MAX_X;  }
-                if ( pos.X <= 0 )   { this-> pos.X = 0;   }
-                this-> pos.X = pos.X-=vx; // moves userbox left
-            }
-            else if(key == 77)     //right arrow key
-            {
-                if (pos.X >= MAX_X) { this-> pos.X = MAX_X;  }
-                if ( pos.X <= 0 )   { this-> pos.X = 0;   }
-                this-> pos.X = pos.X+=vx; // moves userbox right
-            }
-            
-        }
-};
-
-class Ball : public GameObject {
-    protected:
-        char ballShape_;
-    public:
-        Ball(char ballShape) { //: ballShape_(ballShape) {}
-            ballShape_ = ballShape;
-            pos.X = 20;
-            pos.Y = 17;
-            vx = 1;
-            vy = -1;
-        }
-        void flipVy()    //used when ball hits userbox
-        {
-            vy = vy*-1;
-        }
-        short getY() { return pos.Y; }
-        void draw() {
-            GameObject::draw();
-            cout << ballShape_;
-        }
-        void move() {
-            pos.X += vx;
-            pos.Y += vy;
-            // KEEPS THE BALL INSIDE WINDOW EXCEPT THE BOTTOM
-            if (pos.X >= MAX_X) { vx *= -1; pos.X = MAX_X - 1; }
-            if ( pos.X <= 0 )   { vx *= -1;	pos.X = 1; 		   }
-            if ( pos.Y <= 0 )    { vy *= -1;	pos.Y = 1; 		   }
-            if (pos.Y >= 19) { 
-                cout << "game over" << endl;
-                exit(0); 
-                }
-        }
-
-};
+// Add a time for input and output
+// Add bounces from still boxes
 
 bool collide(COORD ballPos, COORD blockPos)   //compares a block's position with the ball's
 {
@@ -184,6 +35,21 @@ bool gameOver(vector<GameObject*> go, int& blocksHit)     // returns true if all
     return false;
 }
 
+void overlap(vector<GameObject*> go ) { //Reassures all stillboxes are not overlapping
+    for (int i = 3; i<go.size(); i++){ 
+        for (int j = 0; j < 7; j++)     //makes sure it doesn't overlap any of the positions
+        {
+            while (dynamic_cast<stillBox *>(go[i-1])->getX() == // Captured the getX() from still box to compare to others
+                    dynamic_cast<stillBox *>(go[i])->getX()+j)     
+            {
+
+                dynamic_cast<stillBox *>(go[i])->newX(); // makes the stillbox in a new place
+                dynamic_cast<stillBox *>(go[i])->newY();
+
+            }
+        }
+    } 
+}
 
 
 int main() 
@@ -207,6 +73,7 @@ int main()
     {
         gObjects.push_back(new stillBox());
     }
+    overlap(gObjects);
     int key = 0;
     int blocksHit = 0;
     while (gameOver(gObjects, blocksHit) != true) //makes sure the game isn't over 
@@ -251,12 +118,12 @@ int main()
         gObjects[i]->move();
         }
 
- 		for ( int x=0; x < 12; x++ ) {
+ 		for ( int x=0; x < 25; x++ ) {
 		   /* Use _getch to throw key away. */
 			if ( _kbhit() ) {
 				key =  _getch();
 			}
-			Sleep(1);
+			Sleep(5);
 		}
     system("cls");
     ShowConsoleCursor(false);
@@ -264,3 +131,4 @@ int main()
     ShowConsoleCursor(true);
     return 0;
 }
+
